@@ -26,7 +26,7 @@ export default function WorkspaceSwitcher() {
   };
 
   const select = (ws) => {
-    switchWorkspace(ws.id);
+    switchWorkspace(ws);
     setOpen(false);
     setSearch("");
   };
