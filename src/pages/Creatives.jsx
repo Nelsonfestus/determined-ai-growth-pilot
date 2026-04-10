@@ -78,8 +78,26 @@ function UploadModal({ onClose, onCreated, workspaceId }) {
     if (!file) return;
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setForm(f => ({ ...f, file_url, name: f.name || file.name.replace(/\.[^.]+$/, "") }));
+      // Try uploading to Supabase Storage
+      const { supabase } = await import("@/api/supabaseClient");
+      const ext = file.name.split('.').pop();
+      const fileName = `creatives/${Date.now()}.${ext}`;
+      const { data, error } = await supabase.storage
+        .from('media')
+        .upload(fileName, file, { upsert: true });
+
+      if (error) {
+        // Supabase Storage not configured - use object URL as preview
+        const localUrl = URL.createObjectURL(file);
+        setForm(f => ({ ...f, file_url: localUrl, name: f.name || file.name.replace(/\.[^.]+$/, "") }));
+      } else {
+        const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(fileName);
+        setForm(f => ({ ...f, file_url: publicUrl, name: f.name || file.name.replace(/\.[^.]+$/, "") }));
+      }
+    } catch (_) {
+      // Fallback - use object URL so user can still preview and save
+      const localUrl = URL.createObjectURL(file);
+      setForm(f => ({ ...f, file_url: localUrl, name: f.name || file.name.replace(/\.[^.]+$/, "") }));
     } finally {
       setUploading(false);
     }
@@ -95,10 +113,15 @@ function UploadModal({ onClose, onCreated, workspaceId }) {
   const handleSave = async () => {
     if (!form.name) return;
     setSaving(true);
-    await base44.entities.Creative.create({ ...form, campaign_id: workspaceId });
-    setSaving(false);
-    onCreated();
-    onClose();
+    try {
+      await base44.entities.Creative.create({ ...form, workspace_id: workspaceId });
+      onCreated();
+      onClose();
+    } catch (e) {
+      alert(`Error saving creative: ${e.message}`);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

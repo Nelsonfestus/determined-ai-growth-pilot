@@ -76,7 +76,7 @@ List 4-5 relevant recent news, trends, or events affecting this market in ${data
 - Estimated CPC range
 - Best times to run ads
 
-## ⚡ AI Recommendations for EI Marketing
+## ⚡ AI Recommendations for TopNotch AI Marketing
 Provide 5 specific, actionable recommendations for running ads for this product/service in this location, based on the data above.
 
 Be specific, data-driven, and professional. Use realistic numbers based on industry knowledge.`,
@@ -212,7 +212,7 @@ Be specific, data-driven, and professional. Use realistic numbers based on indus
               <div className="text-center">
                 <Globe className="w-16 h-16 text-muted-foreground/20 mx-auto mb-4" />
                 <p className="text-foreground font-medium">Enter a product and location</p>
-                <p className="text-sm text-muted-foreground mt-1">EI will analyze the market and provide insights</p>
+                <p className="text-sm text-muted-foreground mt-1">AI will analyze the market and provide insights</p>
               </div>
             </div>
           )}

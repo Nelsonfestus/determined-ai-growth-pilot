@@ -40,11 +40,14 @@ const navItems = [
   { path: "/report-builder", icon: FilePlus, label: "Report Builder" },
   { path: "/market-research", icon: Search, label: "Market Research" },
   { path: "/client-chat", icon: BotMessageSquare, label: "AI Assistant", highlight: true },
-  { path: "/creatives", icon: ImagePlay, label: "Ad Creatives" },
   { path: "/notifications", icon: Bell, label: "Alerts & News" },
   { path: "/settings", icon: Settings, label: "Settings" },
+];
+
+const bottomNavItems = [
+  { path: "/creatives", icon: ImagePlay, label: "Ad Creatives" },
+  { path: "/users", icon: Users, label: "User Management", adminOnly: false },
   { path: "/admin/workspaces", icon: ShieldCheck, label: "Admin: Workspaces", adminOnly: true },
-  { path: "/users", icon: Users, label: "User Management", adminOnly: true },
 ];
 
 export default function Sidebar({ onClose }) {
@@ -79,7 +82,7 @@ export default function Sidebar({ onClose }) {
       {/* Nav */}
       <nav className="flex-1 px-3 mt-2 flex flex-col">
         <div className="space-y-1 flex-1">
-        {navItems.filter(i => i.path !== '/creatives' && !i.adminOnly).map((item) => {
+        {navItems.map((item) => {
           const fullPath = item.path === '/' ? `/${slug}/dashboard` : `/${slug}${item.path}`;
           const isActive = location.pathname.startsWith(fullPath.split('?')[0]);
           const hasSubmenu = item.submenu && item.submenu.length > 0;
@@ -142,9 +145,9 @@ export default function Sidebar({ onClose }) {
 
         {/* Bottom nav items */}
         <div className="mt-2 pt-2 border-t border-sidebar-border/50 space-y-1">
-          {navItems.filter(i => i.path === '/creatives' || i.adminOnly).map((item) => {
+          {bottomNavItems.map((item) => {
             const fullPath = item.adminOnly ? item.path : `/${slug}${item.path}`;
-            const isActive = location.pathname === fullPath;
+            const isActive = location.pathname.startsWith(fullPath);
             return (
               <Link
                 key={item.path}

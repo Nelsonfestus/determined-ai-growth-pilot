@@ -52,7 +52,7 @@ export default function Notifications() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <PageHeader title="Alerts & News" subtitle="Real-time notifications from EI and your campaigns">
+      <PageHeader title="Alerts & News" subtitle="Real-time notifications from TopNotch AI and your campaigns">
         {unreadCount > 0 && (
           <Button variant="outline" onClick={markAllRead} className="gap-2 rounded-xl border-border text-muted-foreground hover:text-foreground text-xs">
             <CheckCheck className="w-3.5 h-3.5" /> Mark all read
@@ -90,7 +90,7 @@ export default function Notifications() {
         <div className="text-center py-20 bg-card border border-border rounded-2xl">
           <Bell className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <p className="text-foreground font-medium">No notifications</p>
-          <p className="text-sm text-muted-foreground mt-1">EI will notify you of important updates</p>
+          <p className="text-sm text-muted-foreground mt-1">AI will notify you of important updates</p>
         </div>
       ) : (
         <div className="space-y-3">
