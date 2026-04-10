@@ -59,8 +59,10 @@ export function useWorkspace() {
         let accessibleWorkspaces = [];
 
         if (isSuperAdmin) {
+          // Super admin sees ALL workspaces
           accessibleWorkspaces = workspacesForFilter;
         } else if (isInternal) {
+          // Internal team (internal_admin, project_manager, support_agent): see assigned workspaces
           accessibleWorkspaces = workspacesForFilter.filter(w =>
             assignments.some(a => a.workspace_id === w.id) ||
             w.owner_email === user.email ||
@@ -69,20 +71,22 @@ export function useWorkspace() {
             w.assigned_support === user.email
           );
         } else {
+          // client_user: see ONLY assigned workspaces
           accessibleWorkspaces = workspacesForFilter.filter(w =>
             assignments.some(a => a.workspace_id === w.id)
           );
         }
 
-        // Add the virtual 'Agency Overview' workspace for admins
-        if (isSuperAdmin || isInternal) {
-          accessibleWorkspaces.unshift({
-            id: 'agency',
-            name: '🟢 Agency Overview (All Clients)',
-            slug: 'agency',
-            owner_email: 'Admin Aggregation View',
+        // Add 'Agency Overview' pseudo-workspace for internal team members
+        if (isInternal || isSuperAdmin) {
+          const overviewWorkspace = {
+            id: 'all',
+            name: 'Agency Overview',
+            slug: 'all',
+            owner_email: 'Agency Dashboard',
             plan: 'enterprise'
-          });
+          };
+          accessibleWorkspaces = [overviewWorkspace, ...accessibleWorkspaces];
         }
 
         setWorkspaces(accessibleWorkspaces);
@@ -94,8 +98,13 @@ export function useWorkspace() {
           setWorkspace(selected);
 
           // Get user's role in this workspace (from WorkspaceUser)
-          const assignment = assignments.find(a => a.workspace_id === selected.id);
-          const wsRole = assignment?.role || (selected.owner_email === user.email ? 'workspace_owner' : null);
+          let wsRole = null;
+          if (selected.id === 'all') {
+            wsRole = userRole; // Keep global role for overview
+          } else {
+            const assignment = assignments.find(a => a.workspace_id === selected.id);
+            wsRole = assignment?.role || (selected.owner_email === user.email ? 'workspace_owner' : null);
+          }
           setUserRole(wsRole);
         }
       } catch (error) {

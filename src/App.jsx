@@ -36,7 +36,7 @@ const RootRedirect = () => {
       try {
         const user = await base44.auth.me();
         if (!user) {
-          navigate('/admin/workspaces');
+          navigate('/all/admin/workspaces');
           return;
         }
         
@@ -54,9 +54,9 @@ const RootRedirect = () => {
           }
         }
         
-        navigate('/admin/workspaces');
+        navigate('/all/admin/workspaces');
       } catch (e) {
-        navigate('/admin/workspaces');
+        navigate('/all/admin/workspaces');
       }
     };
     
@@ -99,9 +99,6 @@ const AuthenticatedApp = () => {
       {/* Root redirect */}
       <Route path="/" element={<RootRedirect />} />
       
-      {/* Admin routes - no workspace slug */}
-      <Route path="/admin/workspaces" element={<AdminWorkspaces />} />
-      
       {/* Workspace routes with slug */}
       <Route element={<Layout />}>
         <Route path="/:workspaceSlug/dashboard" element={<Dashboard />} />
@@ -122,6 +119,9 @@ const AuthenticatedApp = () => {
         <Route path="/:workspaceSlug/client-chat" element={<ClientChat />} />
         <Route path="/:workspaceSlug/creatives" element={<Creatives />} />
         <Route path="/:workspaceSlug/users" element={<UserManagement />} />
+        
+        {/* Admin route within workspace layout */}
+        <Route path="/:workspaceSlug/admin/workspaces" element={<AdminWorkspaces />} />
       </Route>
       
       {/* 404 */}

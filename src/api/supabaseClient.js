@@ -60,13 +60,13 @@ export const base44 = {
         filter: async (query = {}, options = {}) => {
           let req = supabase.from(table).select('*');
           
-          // MAGIC AGGREGATION: If it's the Agency Overview workspace, don't filter by workspace!
-          if (query.workspace_id === 'agency') {
-            delete query.workspace_id;
+          const finalQuery = { ...query };
+          if (finalQuery.workspace_id === 'all') {
+            delete finalQuery.workspace_id;
           }
 
-          if (Object.keys(query).length > 0) {
-            req = req.match(query);
+          if (Object.keys(finalQuery).length > 0) {
+            req = req.match(finalQuery);
           }
           if (options.sort) {
             const [field, dir] = Object.entries(options.sort)[0];
