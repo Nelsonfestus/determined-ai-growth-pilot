@@ -40,42 +40,36 @@ export default function UserManagement() {
     setMessage('');
 
     try {
-      // Try to save to DB via entities (if system_users table exists)
-      const newUser = { 
-        email, 
-        role, 
-        full_name: 'Pending Invite', 
-        created_date: new Date().toISOString(),
-        id: Math.random().toString(36).substring(2, 9)
-      };
+      const res = await base44.functions.invoke('createUser', { email, role });
       
-      try {
-        await base44.entities.User.create(newUser);
-      } catch (e) {
-        // Fallback to local state if table doesn't exist yet
+      if (res.success || res.data?.success) {
+        setMessage(`✓ ${email} invited as ${role.replace('_', ' ')}`);
+        
+        // Add to local list immediately so we don't need a DB refresh to see it 
+        // (if workspace_users isn't fully linked yet)
+        const newUser = { 
+          email, 
+          role, 
+          full_name: 'Pending Invite', 
+          created_date: new Date().toISOString(),
+          id: Math.random().toString(36).substring(2, 9)
+        };
         setUsers(prev => [newUser, ...prev]);
-      }
-      
-      setMessage(`✓ ${email} invited as ${role.replace('_', ' ')}`);
-      setEmail('');
-      setRole('user');
-      
-      // Reload from DB (might be empty if we just used local state fallback)
-      try {
-        const allUsers = await base44.entities.User.list('-created_date', 100);
-        if (allUsers?.length > 0) {
-          setUsers(allUsers);
-        }
-      } catch (e) {
-        // keep local state
-      }
 
+        setEmail('');
+        setRole('user');
+        
+        loadUsers();
+      } else {
+        setMessage(`Error: ${res.error || res.data?.error || 'Failed to send invite'}`);
+      }
     } catch (error) {
       setMessage(`Error: ${error.message}`);
     } finally {
       setInviting(false);
     }
   };
+
 
   const roleColors = {
     super_admin: 'bg-destructive/10 text-destructive',
