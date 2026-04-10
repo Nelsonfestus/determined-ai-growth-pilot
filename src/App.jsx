@@ -32,35 +32,13 @@ const RootRedirect = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const redirectToWorkspace = async () => {
-      try {
-        const user = await base44.auth.me();
-        if (!user) {
-          navigate('/admin/workspaces');
-          return;
-        }
-        
-        const assignments = await base44.entities.WorkspaceUser.filter(
-          { user_email: user.email },
-          '-created_date',
-          1
-        );
-        
-        if (assignments.length > 0) {
-          const ws = await base44.entities.Workspace.get(assignments[0].workspace_id);
-          if (ws && ws.slug) {
-            navigate(`/${ws.slug}/dashboard`);
-            return;
-          }
-        }
-        
-        navigate('/admin/workspaces');
-      } catch (e) {
-        navigate('/admin/workspaces');
-      }
+    const redirectToSelection = async () => {
+      // Small delay or check can be added if needed, but going straight to selection
+      // lets the user choose their context immediately.
+      navigate('/admin/workspaces');
     };
     
-    redirectToWorkspace();
+    redirectToSelection();
   }, [navigate]);
 
   return (
