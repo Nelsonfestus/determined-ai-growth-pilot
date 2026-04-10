@@ -59,10 +59,8 @@ export function useWorkspace() {
         let accessibleWorkspaces = [];
 
         if (isSuperAdmin) {
-          // Super admin sees ALL workspaces
           accessibleWorkspaces = workspacesForFilter;
         } else if (isInternal) {
-          // Internal team (internal_admin, project_manager, support_agent): see assigned workspaces
           accessibleWorkspaces = workspacesForFilter.filter(w =>
             assignments.some(a => a.workspace_id === w.id) ||
             w.owner_email === user.email ||
@@ -71,10 +69,20 @@ export function useWorkspace() {
             w.assigned_support === user.email
           );
         } else {
-          // client_user: see ONLY assigned workspaces
           accessibleWorkspaces = workspacesForFilter.filter(w =>
             assignments.some(a => a.workspace_id === w.id)
           );
+        }
+
+        // Add the virtual 'Agency Overview' workspace for admins
+        if (isSuperAdmin || isInternal) {
+          accessibleWorkspaces.unshift({
+            id: 'agency',
+            name: '🟢 Agency Overview (All Clients)',
+            slug: 'agency',
+            owner_email: 'Admin Aggregation View',
+            plan: 'enterprise'
+          });
         }
 
         setWorkspaces(accessibleWorkspaces);
