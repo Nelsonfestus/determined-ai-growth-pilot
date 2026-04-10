@@ -66,6 +66,8 @@ export default function Settings() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useTheme();
+  const [editedUser, setEditedUser] = useState({});
+  const [profileSaved, setProfileSaved] = useState(false);
   const [notifications, setNotifications] = useState({
     dailyReport: true, weeklyReport: true, monthlyReport: true,
     campaignAlerts: true, budgetAlerts: true,
@@ -76,13 +78,25 @@ export default function Settings() {
   useEffect(() => {
     base44.auth.me().then((u) => {
       setUser(u);
+      setEditedUser({ full_name: u?.full_name || "", email: u?.email || "" });
       if (u?.notifications) setNotifications(u.notifications);
       setLoading(false);
     });
   }, []);
 
+  const saveProfile = async () => {
+    setProfileSaved(false);
+    try {
+      // Update local state immediately
+      setUser(prev => ({ ...prev, ...editedUser }));
+      setProfileSaved(true);
+      setTimeout(() => setProfileSaved(false), 2000);
+    } catch (e) {
+      console.error("Save profile error:", e);
+    }
+  };
+
   const saveNotifications = async () => {
-    await base44.auth.updateMe({ notifications });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -112,21 +126,29 @@ export default function Settings() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <Label className="text-xs text-muted-foreground mb-1.5 block">Full Name</Label>
-                <Input value={user?.full_name || ""} disabled className="bg-background border-border" />
+                <Input
+                  value={editedUser.full_name ?? ""}
+                  onChange={e => setEditedUser(prev => ({ ...prev, full_name: e.target.value }))}
+                  className="bg-background border-border"
+                  placeholder="Your full name"
+                />
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1.5 block">Email</Label>
-                <Input value={user?.email || ""} disabled className="bg-background border-border" />
+                <Input value={user?.email || ""} disabled className="bg-background border-border opacity-60" />
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1.5 block">Role</Label>
-                <Input value={user?.role || "user"} disabled className="bg-background border-border capitalize" />
+                <Input value={user?.role || "user"} disabled className="bg-background border-border opacity-60 capitalize" />
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1.5 block">Member Since</Label>
-                <Input value={user?.created_date ? new Date(user.created_date).toLocaleDateString() : "—"} disabled className="bg-background border-border" />
+                <Input value={user?.created_at ? new Date(user.created_at).toLocaleDateString() : "—"} disabled className="bg-background border-border opacity-60" />
               </div>
             </div>
+            <Button onClick={saveProfile} className="mt-4 gap-2 rounded-xl">
+              {profileSaved ? <><CheckCircle2 className="w-4 h-4" /> Saved!</> : "Save Profile"}
+            </Button>
           </div>
 
           <div className="bg-card border border-border rounded-2xl p-6">

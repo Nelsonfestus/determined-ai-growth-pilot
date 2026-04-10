@@ -4,7 +4,7 @@ import { base44 } from "@/api/supabaseClient";
 import { Activity, DollarSign, Users, TrendingUp, Zap, RefreshCw, MousePointerClick, Eye, Loader2 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
 import PageHeader from "../components/PageHeader";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 // Distribute total across hours up to currentHour with realistic ad traffic curve
@@ -39,6 +39,7 @@ function LivePulse() {
 }
 
 export default function LiveAnalytics() {
+  const { workspaceSlug } = useParams();
   const [metaToday, setMetaToday] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date());
@@ -134,7 +135,7 @@ export default function LiveAnalytics() {
       ) : !metaToday ? (
         <div className="text-center py-24 text-muted-foreground text-sm">
           No live data from Meta API today. Check your credentials in{" "}
-          <Link to="/integrations" className="text-primary hover:underline">Integrations</Link>.
+          <Link to={`/${workspaceSlug}/integrations`} className="text-primary hover:underline">Integrations</Link>.
         </div>
       ) : (
         <>

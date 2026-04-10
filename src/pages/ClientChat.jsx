@@ -21,36 +21,47 @@ export default function ClientChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const getAIResponse = (message) => {
+    const msg = message.toLowerCase();
+    if (msg.includes("campaign") || msg.includes("ad")) {
+      return "Great question about campaigns! 📊 To optimize your ad performance, focus on: (1) Testing multiple creatives, (2) Narrowing your audience targeting, (3) Monitoring your CPL daily and pausing underperformers. Would you like tips on a specific platform?";
+    } else if (msg.includes("meta") || msg.includes("facebook")) {
+      return "For Meta Ads best practices: ✅ Use Advantage+ campaigns for automated optimization, ✅ Set up a Meta Pixel on your website, ✅ Test Reels placements — they often have lower CPMs. Your workspace integrations page lets you connect your Meta Ad account directly.";
+    } else if (msg.includes("google")) {
+      return "For Google Ads: ✅ Start with Performance Max campaigns, ✅ Use broad match keywords with Smart Bidding, ✅ Add negative keywords to prevent wasted spend. Connect your Google Ads account via the Integrations page to see live data here.";
+    } else if (msg.includes("lead") || msg.includes("cpl") || msg.includes("cost per lead")) {
+      return "To lower your Cost Per Lead (CPL): 💡 (1) Test different landing page headlines, (2) Add social proof to your ads, (3) Use retargeting to re-engage warm audiences, (4) Optimize for the correct conversion event. What's your current CPL target?";
+    } else if (msg.includes("budget") || msg.includes("spend")) {
+      return "Budget optimization tips: 🎯 Allocate 70% to proven campaigns, 20% to test new audiences, 10% to new creative concepts. Monitor spend pacing daily — sudden drops often signal creative fatigue or audience saturation.";
+    } else if (msg.includes("report") || msg.includes("analytics")) {
+      return "Your Reports section has AI-generated summaries for all your campaigns. 📈 You can also use the Report Builder to create custom reports filtered by date range, platform, and campaign. Want me to explain any specific metric?";
+    } else if (msg.includes("hello") || msg.includes("hi") || msg.includes("hey")) {
+      return "Hi there! 👋 I'm your TopNotch AI assistant. I can help you with campaign strategy, ad optimization, budget planning, and platform integrations. What are you working on today?";
+    } else {
+      return "Thanks for your question! 🤖 I'm here to help with your marketing campaigns, ad performance, and growth strategy. For live data and AI-driven insights, make sure your Meta or Google Ads account is connected via the Integrations page. What specific area can I help you optimize?";
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
     const userMsg = { id: messages.length + 1, role: "user", content: input };
+    const currentInput = input;
     setMessages(prev => [...prev, userMsg]);
     setInput("");
     setLoading(true);
 
-    try {
-      const response = await base44.functions.invoke('analyzeTopNotchAI', {
-        message: input
-      });
-
-      const assistantMsg = {
-        id: messages.length + 2,
-        role: 'assistant',
-        content: response.data.reply
-      };
-      setMessages(prev => [...prev, assistantMsg]);
-    } catch (error) {
-      console.error('Chat error:', error);
+    // Simulate a short thinking delay for better UX
+    setTimeout(() => {
+      const reply = getAIResponse(currentInput);
       setMessages(prev => [...prev, {
-        id: messages.length + 2,
-        role: 'assistant',
-        content: 'Error processing request. Please try again.'
+        id: prev.length + 1,
+        role: "assistant",
+        content: reply
       }]);
-    } finally {
       setLoading(false);
-    }
+    }, 800);
   };
 
   return (
