@@ -77,18 +77,6 @@ export function useWorkspace() {
           );
         }
 
-        // Add 'Agency Overview' pseudo-workspace for internal team members
-        if (isInternal || isSuperAdmin) {
-          const overviewWorkspace = {
-            id: 'all',
-            name: 'Agency Overview',
-            slug: 'all',
-            owner_email: 'Agency Dashboard',
-            plan: 'enterprise'
-          };
-          accessibleWorkspaces = [overviewWorkspace, ...accessibleWorkspaces];
-        }
-
         setWorkspaces(accessibleWorkspaces);
 
         // Find workspace by slug from URL
@@ -98,13 +86,8 @@ export function useWorkspace() {
           setWorkspace(selected);
 
           // Get user's role in this workspace (from WorkspaceUser)
-          let wsRole = null;
-          if (selected.id === 'all') {
-            wsRole = userRole; // Keep global role for overview
-          } else {
-            const assignment = assignments.find(a => a.workspace_id === selected.id);
-            wsRole = assignment?.role || (selected.owner_email === user.email ? 'workspace_owner' : null);
-          }
+          const assignment = assignments.find(a => a.workspace_id === selected.id);
+          const wsRole = assignment?.role || (selected.owner_email === user.email ? 'workspace_owner' : null);
           setUserRole(wsRole);
         }
       } catch (error) {

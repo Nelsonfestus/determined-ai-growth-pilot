@@ -146,7 +146,7 @@ export default function Sidebar({ onClose }) {
         {/* Bottom nav items */}
         <div className="mt-2 pt-2 border-t border-sidebar-border/50 space-y-1">
           {bottomNavItems.map((item) => {
-            const fullPath = `/${slug}${item.path}`;
+            const fullPath = item.adminOnly ? item.path : `/${slug}${item.path}`;
             const isActive = location.pathname.startsWith(fullPath);
             return (
               <Link

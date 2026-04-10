@@ -59,14 +59,8 @@ export const base44 = {
         },
         filter: async (query = {}, options = {}) => {
           let req = supabase.from(table).select('*');
-          
-          const finalQuery = { ...query };
-          if (finalQuery.workspace_id === 'all') {
-            delete finalQuery.workspace_id;
-          }
-
-          if (Object.keys(finalQuery).length > 0) {
-            req = req.match(finalQuery);
+          if (Object.keys(query).length > 0) {
+            req = req.match(query);
           }
           if (options.sort) {
             const [field, dir] = Object.entries(options.sort)[0];
