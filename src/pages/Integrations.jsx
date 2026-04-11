@@ -11,21 +11,33 @@ import PageHeader from "../components/PageHeader";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
+// ── Platform catalogue ────────────────────────────────────────────────────────
+// Grouped for the add-form dropdown; same keys used by verticals to resolve data
 const PLATFORMS = [
-  { value: "meta_ads",       label: "Meta Ads",         icon: "📘", fields: ["api_key", "account_id", "extra_field_1"] },
-  { value: "google_ads",     label: "Google Ads",       icon: "🎯", fields: ["api_key", "account_id"] },
-  { value: "claude_ai",      label: "Claude AI",        icon: "🧠", fields: ["api_key"] },
-  { value: "openai",         label: "OpenAI",           icon: "🤖", fields: ["api_key"] },
-  { value: "hubspot",        label: "HubSpot",          icon: "🧡", fields: ["api_key", "account_id"] },
-  { value: "ghl",            label: "GoHighLevel",      icon: "⚡", fields: ["api_key", "account_id"] },
-  { value: "leadconnector",  label: "LeadConnector",    icon: "🔗", fields: ["api_key", "account_id", "extra_field_2"] },
-  { value: "zapier",         label: "Zapier",           icon: "⚡", fields: ["api_key", "extra_field_2"] },
-  { value: "make",           label: "Make (Integromat)","icon": "🔧", fields: ["api_key", "extra_field_2"] },
-  { value: "soha",           label: "Soha",             icon: "🌐", fields: ["api_key", "account_id"] },
-  { value: "mindbuddy_crm",  label: "MindBuddy CRM",    icon: "💡", fields: ["api_key", "account_id", "extra_field_2"] },
-  { value: "stripe",         label: "Stripe",           icon: "💳", fields: ["api_key", "api_secret"] },
-  { value: "webhook",        label: "Webhook",          icon: "🔌", fields: ["extra_field_2"] },
-  { value: "other",          label: "Other",            icon: "🔧", fields: ["api_key", "api_secret", "account_id", "extra_field_1", "extra_field_2"] },
+  // Advertising
+  { value: "meta_ads",              label: "Meta Ads",               icon: "📘", group: "Advertising",     fields: ["api_key", "account_id", "extra_field_1"] },
+  { value: "google_ads",            label: "Google Ads",             icon: "🎯", group: "Advertising",     fields: ["api_key", "account_id"] },
+  { value: "tiktok_ads",            label: "TikTok Ads",             icon: "🎵", group: "Advertising",     fields: ["api_key", "account_id"] },
+  // CRM & Marketing
+  { value: "hubspot",               label: "HubSpot",                icon: "🧡", group: "CRM & Marketing", fields: ["api_key", "account_id"] },
+  { value: "zoho_crm",              label: "Zoho CRM",               icon: "🟠", group: "CRM & Marketing", fields: ["api_key", "account_id"] },
+  { value: "whatconverts",          label: "WhatConverts",           icon: "📞", group: "CRM & Marketing", fields: ["api_key", "api_secret"] },
+  { value: "gamma",                 label: "Gamma",                  icon: "📊", group: "CRM & Marketing", fields: ["api_key"] },
+  { value: "activecampaign",        label: "ActiveCampaign",         icon: "⚡", group: "CRM & Marketing", fields: ["api_key", "account_id"] },
+  { value: "mailchimp",             label: "Mailchimp",              icon: "🐒", group: "CRM & Marketing", fields: ["api_key"] },
+  { value: "klaviyo",               label: "Klaviyo",                icon: "📧", group: "CRM & Marketing", fields: ["api_key"] },
+  { value: "semrush",               label: "Semrush",                icon: "🔍", group: "CRM & Marketing", fields: ["api_key"] },
+  // Analytics
+  { value: "ga4",                   label: "Google Analytics 4",     icon: "📈", group: "Analytics",       fields: ["api_key", "api_secret"] },
+  { value: "google_search_console", label: "Google Search Console",  icon: "🔎", group: "Analytics",       fields: ["api_key"] },
+  // Other
+  { value: "claude_ai",             label: "Claude Bot (Anthropic)", icon: "🧠", group: "Other",           fields: ["api_key"] },
+  { value: "openai",                label: "OpenAI",                 icon: "🤖", group: "Other",           fields: ["api_key"] },
+  { value: "ghl",                   label: "GoHighLevel",            icon: "⚡", group: "Other",           fields: ["api_key", "account_id"] },
+  { value: "stripe",                label: "Stripe",                 icon: "💳", group: "Other",           fields: ["api_key", "api_secret"] },
+  { value: "zapier",                label: "Zapier",                 icon: "🔀", group: "Other",           fields: ["api_key", "extra_field_2"] },
+  { value: "webhook",               label: "Webhook",                icon: "🔌", group: "Other",           fields: ["extra_field_2"] },
+  { value: "other",                 label: "Other",                  icon: "🔧", group: "Other",           fields: ["api_key", "api_secret", "account_id", "extra_field_1", "extra_field_2"] },
 ];
 
 const FIELD_LABELS = {

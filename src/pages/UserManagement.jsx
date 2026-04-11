@@ -1,19 +1,51 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/supabaseClient';
-import { Plus, Mail, Shield, Loader2, Trash2, RefreshCw } from 'lucide-react';
+import { Plus, Mail, Shield, Loader2, Trash2, RefreshCw, ShieldCheck, ShieldAlert, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PageHeader from '../components/PageHeader';
+import { useWorkspace } from '@/lib/useWorkspace';
+
+// RBAC roles available in workspace context
+const WORKSPACE_ROLES = [
+  {
+    value: 'Admin',
+    label: 'Admin',
+    desc: 'Full access — Settings, Billing, User Management',
+    icon: ShieldCheck,
+    color: 'bg-primary/10 text-primary',
+  },
+  {
+    value: 'Manager',
+    label: 'Manager',
+    desc: 'Analytics, Campaigns, Reports — cannot delete users or access Billing',
+    icon: UserCheck,
+    color: 'bg-chart-2/10 text-chart-2',
+  },
+  {
+    value: 'User',
+    label: 'User',
+    desc: 'Read-only access to Analytics and Reports',
+    icon: Shield,
+    color: 'bg-secondary text-secondary-foreground',
+  },
+];
 
 export default function UserManagement() {
+  const { workspace } = useWorkspace();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [inviting, setInviting] = useState(false);
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('user');
+  const [role, setRole] = useState('Manager');
   const [message, setMessage] = useState('');
+  const [currentUserRole, setCurrentUserRole] = useState(null);
+
+  useEffect(() => {
+    base44.auth.me().then((u) => setCurrentUserRole(u?.role));
+  }, []);
 
   const loadUsers = async () => {
     try {
@@ -72,13 +104,19 @@ export default function UserManagement() {
 
 
   const roleColors = {
-    super_admin: 'bg-destructive/10 text-destructive',
+    Admin:   'bg-primary/10 text-primary',
+    Manager: 'bg-chart-2/10 text-chart-2',
+    User:    'bg-secondary text-secondary-foreground',
+    // legacy
+    super_admin:    'bg-destructive/10 text-destructive',
     internal_admin: 'bg-primary/10 text-primary',
-    project_manager: 'bg-chart-2/10 text-chart-2',
-    support_agent: 'bg-warning/10 text-warning',
-    client_user: 'bg-secondary text-secondary-foreground',
-    user: 'bg-secondary text-secondary-foreground',
+    project_manager:'bg-chart-2/10 text-chart-2',
+    support_agent:  'bg-warning/10 text-warning',
+    client_user:    'bg-secondary text-secondary-foreground',
+    user:           'bg-secondary text-secondary-foreground',
   };
+
+  const isAdmin = ['Admin', 'super_admin', 'admin', 'internal_admin'].includes(currentUserRole);
 
 
   return (
@@ -115,11 +153,11 @@ export default function UserManagement() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="super_admin">Super Admin — full platform access</SelectItem>
-                <SelectItem value="internal_admin">Internal Admin — manage client workspaces</SelectItem>
-                <SelectItem value="project_manager">Project Manager — assigned workspaces only</SelectItem>
-                <SelectItem value="support_agent">Support Agent — troubleshoot & view</SelectItem>
-                <SelectItem value="client_user">Client User — own workspace only</SelectItem>
+                {WORKSPACE_ROLES.map((r) => (
+                  <SelectItem key={r.value} value={r.value}>
+                    <span className="font-semibold">{r.label}</span> — {r.desc}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -169,6 +207,7 @@ export default function UserManagement() {
                   <th className="px-6 py-3 text-left font-medium text-foreground">Full Name</th>
                   <th className="px-6 py-3 text-left font-medium text-foreground">Role</th>
                   <th className="px-6 py-3 text-left font-medium text-foreground">Created</th>
+                  {isAdmin && <th className="px-6 py-3 text-left font-medium text-foreground">Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -184,6 +223,20 @@ export default function UserManagement() {
                     <td className="px-6 py-4 text-muted-foreground text-xs">
                       {user.created_date ? new Date(user.created_date).toLocaleDateString() : '—'}
                     </td>
+                    {isAdmin && (
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={async () => {
+                            if (!window.confirm(`Remove ${user.email}?`)) return;
+                            await base44.entities.WorkspaceUser.delete(user.id).catch(() => {});
+                            loadUsers();
+                          }}
+                          className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

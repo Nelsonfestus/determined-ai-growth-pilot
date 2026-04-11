@@ -8,6 +8,8 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './components/Layout';
+
+// Existing pages
 import Dashboard from './pages/Dashboard';
 import Campaigns from './pages/Campaigns';
 import Analytics from './pages/Analytics';
@@ -28,13 +30,18 @@ import ClientChat from './pages/ClientChat';
 import AdminWorkspaces from './pages/AdminWorkspaces';
 import UserManagement from './pages/UserManagement';
 
+// New pages — bug-fix stubs & verticals
+import AIAssistant from './pages/AIAssistant';
+import Alerts from './pages/Alerts';
+import EmailMarketing from './pages/EmailMarketing';
+import SocialMedia from './pages/SocialMedia';
+import SEO from './pages/SEO';
+
 const RootRedirect = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
     const redirectToSelection = async () => {
-      // Small delay or check can be added if needed, but going straight to selection
-      // lets the user choose their context immediately.
       navigate('/admin/workspaces');
     };
     
@@ -51,7 +58,6 @@ const RootRedirect = () => {
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
-  // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -60,18 +66,15 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Handle authentication errors
   if (authError) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
       navigateToLogin();
       return null;
     }
   }
 
-  // Render the main app
   return (
     <Routes>
       {/* Root redirect */}
@@ -82,24 +85,42 @@ const AuthenticatedApp = () => {
       
       {/* Workspace routes with slug */}
       <Route element={<Layout />}>
+        {/* Core */}
         <Route path="/:workspaceSlug/dashboard" element={<Dashboard />} />
         <Route path="/:workspaceSlug/campaigns" element={<Campaigns />} />
+        <Route path="/:workspaceSlug/campaign" element={<CampaignDetail />} />
         <Route path="/:workspaceSlug/analytics" element={<Analytics />} />
+
+        {/* Analytics Verticals */}
+        <Route path="/:workspaceSlug/live" element={<LiveAnalytics />} />
+        <Route path="/:workspaceSlug/live-analytics" element={<LiveAnalytics />} />  {/* alias */}
+        <Route path="/:workspaceSlug/email" element={<EmailMarketing />} />
+        <Route path="/:workspaceSlug/social" element={<SocialMedia />} />
+        <Route path="/:workspaceSlug/seo" element={<SEO />} />
+
+        {/* Insights */}
         <Route path="/:workspaceSlug/reports" element={<Reports />} />
         <Route path="/:workspaceSlug/report-builder" element={<ReportBuilder />} />
-        <Route path="/:workspaceSlug/support" element={<Support />} />
-        <Route path="/:workspaceSlug/ad-banners" element={<AdBanners />} />
-        <Route path="/:workspaceSlug/settings" element={<Settings />} />
-        <Route path="/:workspaceSlug/notifications" element={<Notifications />} />
-        <Route path="/:workspaceSlug/integrations" element={<Integrations />} />
         <Route path="/:workspaceSlug/market-research" element={<MarketResearch />} />
-        <Route path="/:workspaceSlug/live" element={<LiveAnalytics />} />
-        <Route path="/:workspaceSlug/campaign" element={<CampaignDetail />} />
-        <Route path="/:workspaceSlug/ghl" element={<GHLDashboard />} />
-        <Route path="/:workspaceSlug/billing" element={<Billing />} />
+
+        {/* Tools */}
+        <Route path="/:workspaceSlug/ai-assistant" element={<AIAssistant />} />
         <Route path="/:workspaceSlug/client-chat" element={<ClientChat />} />
+        <Route path="/:workspaceSlug/alerts" element={<Alerts />} />
+        <Route path="/:workspaceSlug/notifications" element={<Notifications />} />  {/* alias */}
+        <Route path="/:workspaceSlug/integrations" element={<Integrations />} />
+        <Route path="/:workspaceSlug/ghl" element={<GHLDashboard />} />
+
+        {/* Creatives */}
         <Route path="/:workspaceSlug/creatives" element={<Creatives />} />
+        <Route path="/:workspaceSlug/ad-creatives" element={<Creatives />} />   {/* alias */}
+        <Route path="/:workspaceSlug/ad-banners" element={<AdBanners />} />
+
+        {/* Admin / Settings */}
+        <Route path="/:workspaceSlug/settings" element={<Settings />} />
+        <Route path="/:workspaceSlug/billing" element={<Billing />} />
         <Route path="/:workspaceSlug/users" element={<UserManagement />} />
+        <Route path="/:workspaceSlug/support" element={<Support />} />
       </Route>
       
       {/* 404 */}
